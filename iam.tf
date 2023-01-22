@@ -9,6 +9,9 @@ resource "aws_iam_user_policy_attachment" "admin" {
 
 resource "aws_iam_access_key" "my_key" {
   user = aws_iam_user.me.name
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_secretsmanager_secret" "key" {
