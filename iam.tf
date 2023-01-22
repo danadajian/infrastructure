@@ -1,28 +1,30 @@
-resource "aws_iam_role" "github_actions_role" {
-  name = "github-actions-iam-role"
+resource "aws_iam_user" "me" {
+  name = "danadajian"
+}
 
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/AdministratorAccess"
-  ]
+resource "aws_iam_user_policy_attachment" "admin" {
+  user       = aws_iam_user.me.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Effect = "Allow"
-        Principal = {
-          Federated = aws_iam_openid_connect_provider.default.arn
-        }
-        Condition = {
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:danadajian/*"
-          }
-          StringEquals = {
-            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
-          }
-        }
-      },
-    ]
-  })
+resource "aws_iam_access_key" "my_key" {
+  user = aws_iam_user.me.name
+}
+
+resource "aws_secretsmanager_secret" "key" {
+  name = "aws_access_key_id"
+}
+
+resource "aws_secretsmanager_secret_version" "id" {
+  secret_id     = aws_secretsmanager_secret.key.id
+  secret_string = aws_iam_access_key.my_key.secret
+}
+
+resource "aws_secretsmanager_secret" "secret" {
+  name = "aws_secret_access_key"
+}
+
+resource "aws_secretsmanager_secret_version" "secret" {
+  secret_id     = aws_secretsmanager_secret.secret.id
+  secret_string = aws_iam_access_key.my_key.secret
 }
