@@ -17,7 +17,7 @@ resource "aws_secretsmanager_secret" "key" {
 
 resource "aws_secretsmanager_secret_version" "id" {
   secret_id     = aws_secretsmanager_secret.key.id
-  secret_string = aws_iam_access_key.my_key.secret
+  secret_string = aws_iam_access_key.my_key.id
 }
 
 resource "aws_secretsmanager_secret" "secret" {
